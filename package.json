@@ -3,8 +3,13 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
+    "start:reset": "npm run start --reset-cache",
+    "reinstall": "rm -rf node_modules && npm install",
+    "postInstall": "npm install && cd ios && pod install && cd ..",
+    "clean": "watchman watch-del-all && rm -rf /tmp/metro-bundler-cache-* && rm -rf /tmp/haste-map-react-native-packager-*",
     "android": "react-native run-android",
     "ios": "react-native run-ios",
+    "ipad": "react-native run-ios  --simulator 'iPad (8th generation)'",
     "start": "react-native start",
     "test": "jest",
     "lint": "eslint ."
@@ -17,7 +22,8 @@
     "react": "16.13.1",
     "react-native": "0.63.4",
     "react-native-gesture-handler": "^1.10.0",
-    "react-native-reanimated": "^1.13.2",
+    "react-native-linear-gradient": "^2.4.4",
+    "react-native-reanimated": "^1.7.0",
     "react-native-safe-area-context": "^3.1.9",
     "react-native-screens": "^2.17.1"
   },
