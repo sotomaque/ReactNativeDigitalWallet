@@ -17,7 +17,7 @@ import LinearGradient from 'react-native-linear-gradient';
 
 import {COLORS, SIZES, icons, images, FONTS} from '../constants';
 
-const SignUp = () => {
+const SignUp = ({navigation}) => {
   const [isPasswordVisible, setIsPasswordVisible] = React.useState(false);
 
   const [areas, setAreas] = React.useState([]);
@@ -189,6 +189,40 @@ const SignUp = () => {
         </View>
 
         {/* Password */}
+        <View style={{marginTop: SIZES.padding * 2}}>
+          <Text style={{color: COLORS.lightGreen, ...FONTS.body3}}>
+            Password
+          </Text>
+          <TextInput
+            style={{
+              marginVertical: SIZES.padding,
+              borderBottomWidth: 1,
+              borderBottomColor: COLORS.white,
+              height: 40,
+              color: COLORS.white,
+              ...FONTS.body3,
+            }}
+            placeholder="Enter Password"
+            placeholderTextColor={COLORS.white}
+            selectionColor={COLORS.white}
+            secureTextEntry={!isPasswordVisible}
+          />
+          {/* Toggle Password */}
+          <TouchableOpacity
+            style={{
+              position: 'absolute',
+              right: 0,
+              bottom: 10,
+              height: 30,
+              width: 30,
+            }}
+            onPress={() => setIsPasswordVisible((prev) => !prev)}>
+            <Image
+              source={isPasswordVisible ? icons.disable_eye : icons.eye}
+              style={{height: 20, width: 20, tintColor: COLORS.white}}
+            />
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }
@@ -204,7 +238,7 @@ const SignUp = () => {
             alignItems: 'center',
             justifyContent: 'center',
           }}
-          onPress={() => console.log('button pressed')}>
+          onPress={() => navigation.navigate('Home')}>
           <Text style={{color: COLORS.white, ...FONTS.h3}}>Continue</Text>
         </TouchableOpacity>
       </View>
