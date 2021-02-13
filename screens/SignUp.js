@@ -7,7 +7,7 @@ import {
   TouchableWithoutFeedback,
   Image,
   TextInput,
-  Model,
+  Modal,
   FlatList,
   KeyboardAvoidingView,
   ScrollView,
@@ -18,6 +18,34 @@ import LinearGradient from 'react-native-linear-gradient';
 import {COLORS, SIZES, icons, images, FONTS} from '../constants';
 
 const SignUp = () => {
+  const [isPasswordVisible, setIsPasswordVisible] = React.useState(false);
+
+  const [areas, setAreas] = React.useState([]);
+  const [selectedArea, setSelectedArea] = React.useState(null);
+  const [isModalVisible, setIsModalVisible] = React.useState(false);
+
+  React.useEffect(() => {
+    fetch('https://restcountries.eu/rest/v2/all')
+      .then((res) => res.json())
+      .then((data) => {
+        let areaData = data.map((item) => {
+          return {
+            code: item.alpha2Code,
+            name: item.name,
+            callingCode: `+${item.callingCodes[0]}`,
+            flag: `https://www.countryflags.io/${item.alpha2Code}/flat/64.png`,
+          };
+        });
+        setAreas(areaData);
+        if (areaData.length > 0) {
+          let defaultData = areaData.filter((a) => a.code === 'US');
+          if (defaultData.length > 0) {
+            setSelectedArea(defaultData[0]);
+          }
+        }
+      });
+  }, []);
+
   function renderHeader() {
     return (
       <View
@@ -119,7 +147,7 @@ const SignUp = () => {
                 flexDirection: 'row',
                 ...FONTS.body2,
               }}
-              onPress={() => {}}>
+              onPress={() => setIsModalVisible(true)}>
               {/* Drop Down */}
               <View style={{justifyContent: 'center'}}>
                 <Image
@@ -130,16 +158,15 @@ const SignUp = () => {
               {/* Country Flag */}
               <View style={{justifyContent: 'center', marginLeft: 5}}>
                 <Image
-                  source={images.usFlag}
+                  source={{uri: selectedArea?.flag}}
                   resizeMode="contain"
                   style={{width: 30, height: 30}}
                 />
               </View>
               {/* Country Code */}
               <View style={{justifyContent: 'center', marginLeft: 5}}>
-                <Text
-                  style={{color: COLORS.white, paddingLeft: 5, ...FONTS.body3}}>
-                  +1
+                <Text style={{color: COLORS.white, ...FONTS.body3}}>
+                  {selectedArea?.callingCode}
                 </Text>
               </View>
             </TouchableOpacity>
@@ -162,40 +189,6 @@ const SignUp = () => {
         </View>
 
         {/* Password */}
-        <View style={{marginTop: SIZES.padding * 2}}>
-          <Text style={{color: COLORS.lightGreen, ...FONTS.body3}}>
-            Password
-          </Text>
-          <TextInput
-            style={{
-              marginVertical: SIZES.padding,
-              borderBottomWidth: 1,
-              borderBottomColor: COLORS.white,
-              height: 40,
-              color: COLORS.white,
-              ...FONTS.body3,
-            }}
-            placeholder="Enter Password"
-            placeholderTextColor={COLORS.white}
-            selectionColor={COLORS.white}
-            secureTextEntry={true}
-          />
-          {/* Toggle Password */}
-          <TouchableOpacity
-            style={{
-              position: 'absolute',
-              right: 0,
-              bottom: 10,
-              height: 30,
-              width: 30,
-            }}
-            onPress={() => console.log('toggle')}>
-            <Image
-              source={icons.eye}
-              style={{height: 20, width: 20, tintColor: COLORS.white}}
-            />
-          </TouchableOpacity>
-        </View>
       </View>
     );
   }
@@ -218,6 +211,53 @@ const SignUp = () => {
     );
   }
 
+  function renderAreaCodesModal() {
+    const renderItem = ({item}) => {
+      return (
+        <TouchableOpacity
+          style={{padding: SIZES.padding, flexDirection: 'row'}}
+          onPress={() => {
+            setSelectedArea(item);
+            setIsModalVisible(false);
+          }}>
+          <Image
+            source={{uri: item.flag}}
+            style={{width: 30, height: 30, marginRight: 10}}
+          />
+          <Text style={{...FONTS.body4}}>{item.name}</Text>
+        </TouchableOpacity>
+      );
+    };
+
+    return (
+      <Modal animationType="slide" transparent={true} visible={isModalVisible}>
+        <TouchableWithoutFeedback onPress={() => setIsModalVisible(false)}>
+          <View
+            style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+            <View
+              style={{
+                height: 400,
+                width: SIZES.width * 0.8,
+                backgroundColor: COLORS.lightGreen,
+                borderRadius: SIZES.radius,
+              }}>
+              <FlatList
+                data={areas}
+                renderItem={renderItem}
+                keyExtractor={(item) => item.code}
+                showsVerticalScrollIndicator={false}
+                style={{
+                  padding: SIZES.padding * 2,
+                  marginBottom: SIZES.padding * 2,
+                }}
+              />
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+    );
+  }
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : null}
@@ -237,6 +277,8 @@ const SignUp = () => {
           {renderButtion()}
         </ScrollView>
       </LinearGradient>
+      {/* Modal */}
+      {renderAreaCodesModal()}
     </KeyboardAvoidingView>
   );
 };
